@@ -1,4 +1,4 @@
-package com.imarkoff.HCI.ui.theme
+package com.imarkoff.hci_tests.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

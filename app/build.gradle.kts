@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.imarkoff.HCI"
+    namespace = "com.imarkoff.hci_tests"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.imarkoff.HCI"
+        applicationId = "com.imarkoff.hci_tests"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -56,6 +56,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.navigation.common.ktx)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
