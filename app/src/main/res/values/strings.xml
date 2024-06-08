@@ -3,4 +3,10 @@
     <string name="app_short_name">Тести з ЛМВ</string>
     <string name="tests">Тести</string>
     <string name="history">Історія</string>
+    <string name="login">Вхід</string>
+    <string name="username">Нікнейм</string>
+    <string name="password">Пароль</string>
+    <string name="to_register">Зареєструватися</string>
+    <string name="to_login">Увійти</string>
+    <string name="start_test">Розпочати тест</string>
 </resources>
