@@ -15,4 +15,7 @@
     <string name="leave_test_question_description">Ви дійсно хочете покинути проходження цього тесту? Усі відповіді буде скинуто.</string>
     <string name="close">Закрити</string>
     <string name="cancel">Відмінити</string>
+    <string name="leave_test">Покинути тест</string>
+    <string name="passing">Дано відповідей</string>
+    <string name="result">Результат</string>
 </resources>

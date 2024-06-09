@@ -57,6 +57,7 @@ import com.imarkoff.hci_tests.R
 import com.imarkoff.hci_tests.data.Answer
 import com.imarkoff.hci_tests.data.Question
 import com.imarkoff.hci_tests.data.Test
+import com.imarkoff.hci_tests.data.TestResult
 import com.imarkoff.hci_tests.ui.theme.HCITheme
 
 @Suppress("DEPRECATION")
@@ -93,23 +94,37 @@ class PassingTestScreenActivity : ComponentActivity() {
 @Composable
 fun QuestionRadioGroup(
     question: Question,
+    passing: MutableState<Boolean>,
     onAnswerSelected: (answerId: Int) -> Unit
 ) {
     val selectedAnswer = remember { mutableIntStateOf(question.answeredId) }
 
     Column {
         question.answers.forEach { answer ->
+
+            val color = if (!passing.value && selectedAnswer.intValue == answer.answerId) {
+                if (answer.isCorrect) {
+                    Color(0x4E0CFF21)
+                } else {
+                    Color(0x4EFF1313)
+                }
+            } else {
+                Color.Transparent
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .selectable(
                         selected = selectedAnswer.intValue == answer.answerId,
                         onClick = {
-                            selectedAnswer.intValue = answer.answerId
-                            onAnswerSelected(answer.answerId)
+                            if (passing.value) {
+                                selectedAnswer.intValue = answer.answerId
+                                onAnswerSelected(answer.answerId)
+                            }
                         }
                     )
-                    .background(shape = MaterialTheme.shapes.small, color = Color.Transparent)
+                    .background(color = color)
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -130,7 +145,9 @@ fun QuestionRadioGroup(
 fun ShowQuestions(
     questions: List<Question>,
     paddingValues: PaddingValues,
-    answeredCount: MutableState<Int>
+    answeredCount: MutableState<Int>,
+    passing: MutableState<Boolean>,
+    getAnsweredQuestions: (List<Question>) -> Unit = {}
 ) {
     val answeredQuestions = remember { mutableStateOf(listOf<Question>()) }
 
@@ -149,12 +166,13 @@ fun ShowQuestions(
                     .padding(start = 16.dp)
             )
 
-            QuestionRadioGroup(question = question) {
+            QuestionRadioGroup(question = question, passing = passing) {
                 question.answeredId = it
                 if (!answeredQuestions.value.contains(question)) {
                     answeredQuestions.value += question
                     answeredCount.value++
                 }
+                getAnsweredQuestions(answeredQuestions.value)
             }
 
             HorizontalDivider(
@@ -207,7 +225,19 @@ fun PassingTestActivity(
     closeActivity: () -> Unit
 ) {
     val answeredCount = remember { mutableIntStateOf(0) }
+    val answeredQuestions = remember { mutableStateOf(listOf<Question>()) }
     var onBackPressed by remember { mutableStateOf(false) }
+
+    val passing = remember { mutableStateOf(true) }
+
+    val testResult = remember {
+        mutableStateOf<TestResult?>(null)
+    }
+
+    testResult.value?.let {
+        answeredCount.intValue = it.result
+        passing.value = false
+    }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -235,32 +265,34 @@ fun PassingTestActivity(
         bottomBar = {
             BottomAppBar(
                 actions = {
-                          Text(
-                              text = "${answeredCount.intValue}/${test.questions.size}",
-                              modifier = Modifier.padding(start = 16.dp)
-                              )
+                    Text(
+                        text = stringResource(id = (if (passing.value) R.string.passing else R.string.result)),
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                    Text(
+                        text = ": ${answeredCount.intValue}/${test.questions.size}"
+                    )
                 },
                 floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        onClick = { /* do something */ },
-                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = stringResource(R.string.end_test)
-                            )
-                        },
-                        text = {
-                            Text(text = stringResource(R.string.end_test))
-                        }
-                    )
+                    BottomButton(
+                        passing = passing,
+                        closeActivity = closeActivity
+                    ) {
+                        testResult.value = processTest(test, answeredQuestions.value)
+                    }
                 }
             )
         }
     )
     {
-        ShowQuestions(questions = test.questions, paddingValues = it, answeredCount = answeredCount)
+        ShowQuestions(
+            questions = test.questions,
+            paddingValues = it,
+            answeredCount = answeredCount,
+            passing = passing,
+        ) {questions ->
+            answeredQuestions.value = questions
+        }
     }
 
     BackHandler(onBack = {
@@ -278,37 +310,85 @@ fun PassingTestActivity(
     }
 }
 
+@Composable
+fun BottomButton(
+    passing: MutableState<Boolean>,
+    closeActivity: () -> Unit = {},
+    processTest: () -> Unit,
+) {
+    if (passing.value) {
+        ExtendedFloatingActionButton(
+            onClick = {
+                processTest()
+            },
+            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = stringResource(R.string.end_test)
+                )
+            },
+            text = {
+                Text(text = stringResource(R.string.end_test))
+            }
+        )
+    }
+    else {
+        ExtendedFloatingActionButton(
+            onClick = {
+                closeActivity()
+            },
+            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            icon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.leave_test)
+                )
+            },
+            text = {
+                Text(text = stringResource(R.string.leave_test))
+            }
+        )
+
+    }
+}
+
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun NewScreenPreview() {
-    PassingTestActivity(
-        test = Test(
-            testId = 0,
-            testName = "Ім'я тесту",
-            testDescription = "Опис тесту ...",
-            questions = listOf(
-                Question(
-                    questionId = 0,
-                    questionText = "Питання 1",
-                    answers = listOf(
-                        Answer(answerId = 0, answerText = "Відповідь 1", isCorrect = true),
-                        Answer(answerId = 1, answerText = "Відповідь 2", isCorrect = false),
-                        Answer(answerId = 2, answerText = "Відповідь 3", isCorrect = false),
-                        Answer(answerId = 3, answerText = "Відповідь 4", isCorrect = false),
-                        Answer(answerId = 4, answerText = "Відповідь 5", isCorrect = false)
-                    )
-                ),
-                Question(
-                    questionId = 1,
-                    questionText = "Питання 2",
-                    answers = listOf(
-                        Answer(answerId = 0, answerText = "Відповідь 1", isCorrect = false),
-                        Answer(answerId = 1, answerText = "Відповідь 2", isCorrect = true),
-                        Answer(answerId = 2, answerText = "Відповідь 3", isCorrect = false)
-                    )
-                ),
-            )
-        ),
-        closeActivity = {}
-    )
+    HCITheme {
+        PassingTestActivity(
+            test = Test(
+                testId = 0,
+                testName = "Ім'я тесту",
+                testDescription = "Опис тесту ...",
+                questions = listOf(
+                    Question(
+                        questionId = 0,
+                        questionText = "Питання 1",
+                        answers = listOf(
+                            Answer(answerId = 0, answerText = "Відповідь 1", isCorrect = true),
+                            Answer(answerId = 1, answerText = "Відповідь 2", isCorrect = false),
+                            Answer(answerId = 2, answerText = "Відповідь 3", isCorrect = false),
+                            Answer(answerId = 3, answerText = "Відповідь 4", isCorrect = false),
+                            Answer(answerId = 4, answerText = "Відповідь 5", isCorrect = false)
+                        )
+                    ),
+                    Question(
+                        questionId = 1,
+                        questionText = "Питання 2",
+                        answers = listOf(
+                            Answer(answerId = 0, answerText = "Відповідь 1", isCorrect = false),
+                            Answer(answerId = 1, answerText = "Відповідь 2", isCorrect = true),
+                            Answer(answerId = 2, answerText = "Відповідь 3", isCorrect = false)
+                        )
+                    ),
+                )
+            ),
+            closeActivity = {}
+        )
+    }
 }

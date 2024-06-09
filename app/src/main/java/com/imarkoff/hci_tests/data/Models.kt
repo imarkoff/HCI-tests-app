@@ -43,13 +43,14 @@ data class Answer (
 ) : Parcelable
 
 @Entity
-@TypeConverters(DateConverter::class)
+@TypeConverters(DateConverter::class, QuestionConverter::class)
 data class TestResult (
-    @PrimaryKey
-    val resultId: Int,
+    @PrimaryKey(autoGenerate = true)
+    val resultId: Int = 0,
     var testId: Int,
     var resultDate: Date,
-    var resultScore: Int,
+    var answeredQuestions: List<Question>,
+    var result: Int = 0
 )
 
 class QuestionConverter {
