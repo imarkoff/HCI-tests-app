@@ -156,7 +156,7 @@ fun ShowQuestions(
     passing: MutableState<Boolean>,
     getAnsweredQuestions: (List<Question>) -> Unit = {}
 ) {
-    val answeredQuestions = remember { mutableStateOf(listOf<Question>()) }
+    val answeredQuestions = remember { mutableStateOf(questions) }
 
     LazyColumn (
         contentPadding = paddingValues,
@@ -175,10 +175,13 @@ fun ShowQuestions(
 
             QuestionRadioGroup(question = question, passing = passing) {
                 question.answeredId = it
-                if (!answeredQuestions.value.contains(question)) {
-                    answeredQuestions.value += question
+
+                if(answeredQuestions.value[index].answeredId == -1) {
                     answeredCount.value++
                 }
+
+                answeredQuestions.value[index].answeredId = it
+
                 getAnsweredQuestions(answeredQuestions.value)
             }
 
@@ -194,10 +197,6 @@ fun ShowQuestions(
 fun OnBackPressed(
     closeDialog: (value: Boolean) -> Unit
 ) {
-    // show dialog with question and two buttons
-    // if user press close - finish activity
-    // if user press cancel - do nothing
-
     AlertDialog(
         icon = {
             Icon(
