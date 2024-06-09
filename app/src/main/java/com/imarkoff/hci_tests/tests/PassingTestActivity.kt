@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.imarkoff.hci_tests.R
+import com.imarkoff.hci_tests.data.Answer
 import com.imarkoff.hci_tests.data.Question
 import com.imarkoff.hci_tests.data.Test
 import com.imarkoff.hci_tests.ui.theme.HCITheme
@@ -280,5 +281,34 @@ fun PassingTestActivity(
 @Preview(showBackground = true)
 @Composable
 fun NewScreenPreview() {
-    PassingTestScreenActivity()
+    PassingTestActivity(
+        test = Test(
+            testId = 0,
+            testName = "Ім'я тесту",
+            testDescription = "Опис тесту ...",
+            questions = listOf(
+                Question(
+                    questionId = 0,
+                    questionText = "Питання 1",
+                    answers = listOf(
+                        Answer(answerId = 0, answerText = "Відповідь 1", isCorrect = true),
+                        Answer(answerId = 1, answerText = "Відповідь 2", isCorrect = false),
+                        Answer(answerId = 2, answerText = "Відповідь 3", isCorrect = false),
+                        Answer(answerId = 3, answerText = "Відповідь 4", isCorrect = false),
+                        Answer(answerId = 4, answerText = "Відповідь 5", isCorrect = false)
+                    )
+                ),
+                Question(
+                    questionId = 1,
+                    questionText = "Питання 2",
+                    answers = listOf(
+                        Answer(answerId = 0, answerText = "Відповідь 1", isCorrect = false),
+                        Answer(answerId = 1, answerText = "Відповідь 2", isCorrect = true),
+                        Answer(answerId = 2, answerText = "Відповідь 3", isCorrect = false)
+                    )
+                ),
+            )
+        ),
+        closeActivity = {}
+    )
 }
