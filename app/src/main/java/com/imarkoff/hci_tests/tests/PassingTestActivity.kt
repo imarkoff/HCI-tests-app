@@ -157,6 +157,7 @@ fun ShowQuestions(
     getAnsweredQuestions: (List<Question>) -> Unit = {}
 ) {
     val answeredQuestions = remember { mutableStateOf(questions) }
+    getAnsweredQuestions(answeredQuestions.value) // initial value
 
     LazyColumn (
         contentPadding = paddingValues,
