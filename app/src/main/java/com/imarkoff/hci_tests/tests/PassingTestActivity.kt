@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -18,6 +19,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,13 +34,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,9 +79,13 @@ class PassingTestScreenActivity : ComponentActivity() {
         val test = intent.getParcelableExtra<Test>("test") ?: throw IllegalArgumentException("Test is null")
         setContent {
             HCITheme {
-                PassingTestActivity(test)
+                PassingTestActivity(test, closeActivity = { closeActivity() })
             }
         }
+    }
+
+    private fun closeActivity() {
+        super.finish()
     }
 }
 
@@ -154,16 +164,49 @@ fun ShowQuestions(
     }
 }
 
-fun onBackPressed() {
+@Composable
+fun OnBackPressed(
+    closeDialog: (value: Boolean) -> Unit
+) {
     // show dialog with question and two buttons
+    // if user press close - finish activity
+    // if user press cancel - do nothing
 
-    /* TODO */
+    AlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = stringResource(R.string.end_test)
+            )
+        },
+        title = {
+            Text(text = stringResource(R.string.leave_test_question))
+        },
+        text = {
+            Text(text = stringResource(R.string.leave_test_question_description))
+        },
+        onDismissRequest = { closeDialog(false) },
+        confirmButton = {
+            TextButton(onClick = { closeDialog(true) }) {
+                Text(text = stringResource(R.string.close))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { closeDialog(false) }) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PassingTestActivity(test: Test) {
+fun PassingTestActivity(
+    test: Test,
+    closeActivity: () -> Unit
+) {
     val answeredCount = remember { mutableIntStateOf(0) }
+    var onBackPressed by remember { mutableStateOf(false) }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -177,7 +220,7 @@ fun PassingTestActivity(test: Test) {
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        onBackPressed()
+                        onBackPressed = true
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -217,6 +260,20 @@ fun PassingTestActivity(test: Test) {
     )
     {
         ShowQuestions(questions = test.questions, paddingValues = it, answeredCount = answeredCount)
+    }
+
+    BackHandler(onBack = {
+        onBackPressed = true
+    })
+
+    if (onBackPressed) {
+        OnBackPressed {
+            if (it) {
+                closeActivity()
+            } else {
+                onBackPressed = false
+            }
+        }
     }
 }
 

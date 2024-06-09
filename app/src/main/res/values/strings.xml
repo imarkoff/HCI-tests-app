@@ -11,4 +11,8 @@
     <string name="start_test">Розпочати тест</string>
     <string name="back">Назад</string>
     <string name="end_test">Здати тест</string>
+    <string name="leave_test_question">Вийти з тесту?</string>
+    <string name="leave_test_question_description">Ви дійсно хочете покинути проходження цього тесту? Усі відповіді буде скинуто.</string>
+    <string name="close">Закрити</string>
+    <string name="cancel">Відмінити</string>
 </resources>
