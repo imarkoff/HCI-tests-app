@@ -175,13 +175,11 @@ fun ShowQuestions(
             )
 
             QuestionRadioGroup(question = question, passing = passing) {
-                question.answeredId = it
-
-                if(answeredQuestions.value[index].answeredId == -1) {
+                if(question.answeredId == -1) {
                     answeredCount.value++
                 }
 
-                answeredQuestions.value[index].answeredId = it
+                question.answeredId = it
 
                 getAnsweredQuestions(answeredQuestions.value)
             }
