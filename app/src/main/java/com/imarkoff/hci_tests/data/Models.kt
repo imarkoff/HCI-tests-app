@@ -43,15 +43,29 @@ data class Answer (
 ) : Parcelable
 
 @Entity
-@TypeConverters(DateConverter::class, QuestionConverter::class)
+@TypeConverters(DateConverter::class, TestConverter::class)
 data class TestResult (
     @PrimaryKey(autoGenerate = true)
     val resultId: Int = 0,
-    var testId: Int,
     var resultDate: Date,
-    var answeredQuestions: List<Question>,
-    var result: Int = 0
-)
+    var answeredTest: Test
+) {
+    val result: Int
+        get() {
+            var correctAnswers = 0
+            answeredTest.questions.forEach { question ->
+                if (question.answeredId != -1 && question.answers[question.answeredId].isCorrect) {
+                    correctAnswers++
+                }
+            }
+            return correctAnswers
+    }
+
+    val total: Int
+        get() {
+            return answeredTest.questions.size
+        }
+}
 
 class QuestionConverter {
     @TypeConverter
@@ -94,5 +108,21 @@ class DateConverter {
     @TypeConverter
     fun dateToTimestamp(date: Date?): Long? {
         return date?.time
+    }
+}
+
+class TestConverter {
+    @TypeConverter
+    fun fromTest(value: Test): String {
+        val gson = Gson()
+        val type = object : TypeToken<Test>() {}.type
+        return gson.toJson(value, type)
+    }
+
+    @TypeConverter
+    fun toTest(value: String): Test {
+        val gson = Gson()
+        val type = object : TypeToken<Test>() {}.type
+        return gson.fromJson(value, type)
     }
 }

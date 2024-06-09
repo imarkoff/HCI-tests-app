@@ -35,9 +35,10 @@ import com.imarkoff.hci_tests.MainViewModel
 import com.imarkoff.hci_tests.R
 import com.imarkoff.hci_tests.data.Test
 
-fun startTest(context: Context, test: Test) {
+fun startTest(context: Context, test: Test, answersCounted: Int = -1) {
     val intent = Intent(context, PassingTestScreenActivity::class.java)
     intent.putExtra("test", test)
+    intent.putExtra("answersCounted", answersCounted)
     context.startActivity(intent)
 }
 

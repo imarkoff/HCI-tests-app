@@ -53,6 +53,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.imarkoff.hci_tests.MainViewModel
 import com.imarkoff.hci_tests.R
 import com.imarkoff.hci_tests.data.Answer
 import com.imarkoff.hci_tests.data.Question
@@ -79,9 +81,14 @@ class PassingTestScreenActivity : ComponentActivity() {
 
 
         val test = intent.getParcelableExtra<Test>("test") ?: throw IllegalArgumentException("Test is null")
+        val answersCounted = intent.getIntExtra("answersCounted", -1)
         setContent {
             HCITheme {
-                PassingTestActivity(test, closeActivity = { closeActivity() })
+                PassingTestActivity(
+                    test,
+                    answeredCounted = answersCounted,
+                    closeActivity = { closeActivity() }
+                )
             }
         }
     }
@@ -222,13 +229,26 @@ fun OnBackPressed(
 @Composable
 fun PassingTestActivity(
     test: Test,
-    closeActivity: () -> Unit
+    closeActivity: () -> Unit,
+    answeredCounted: Int = -1,
+    preview: Boolean = false
 ) {
+    val testViewModel: MainViewModel? = if (preview) {
+        null
+    } else {
+        viewModel(factory = MainViewModel.factory)
+    }
+
     val answeredCount = remember { mutableIntStateOf(0) }
     val answeredQuestions = remember { mutableStateOf(listOf<Question>()) }
     var onBackPressed by remember { mutableStateOf(false) }
 
     val passing = remember { mutableStateOf(true) }
+
+    if (answeredCounted != -1) {
+        answeredCount.intValue = answeredCounted
+        passing.value = false
+    }
 
     val testResult = remember {
         mutableStateOf<TestResult?>(null)
@@ -278,7 +298,10 @@ fun PassingTestActivity(
                         passing = passing,
                         closeActivity = closeActivity
                     ) {
-                        testResult.value = processTest(test, answeredQuestions.value)
+                        if (testViewModel != null) {
+                            testResult.value = processTest(
+                                test, answeredQuestions.value, testViewModel)
+                        }
                     }
                 }
             )
@@ -300,12 +323,16 @@ fun PassingTestActivity(
     })
 
     if (onBackPressed) {
-        OnBackPressed {
-            if (it) {
-                closeActivity()
-            } else {
-                onBackPressed = false
+        if (passing.value) {
+            OnBackPressed {
+                if (it) {
+                    closeActivity()
+                } else {
+                    onBackPressed = false
+                }
             }
+        } else {
+            closeActivity()
         }
     }
 }
@@ -388,7 +415,8 @@ fun NewScreenPreview() {
                     ),
                 )
             ),
-            closeActivity = {}
+            closeActivity = {},
+            preview = true
         )
     }
 }

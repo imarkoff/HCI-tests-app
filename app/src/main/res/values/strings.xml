@@ -18,4 +18,6 @@
     <string name="leave_test">Покинути тест</string>
     <string name="passing">Дано відповідей</string>
     <string name="result">Результат</string>
+    <string name="passed_date">Дата проходження</string>
+    <string name="show_results">Показати результати</string>
 </resources>

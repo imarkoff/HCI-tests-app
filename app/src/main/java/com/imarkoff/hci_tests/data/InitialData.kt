@@ -8,7 +8,7 @@ import com.imarkoff.hci_tests.MainViewModel
 fun InsertInitialTest() {
     val testViewModel: MainViewModel = viewModel(factory =  MainViewModel.factory)
 
-    testViewModel.insert(
+    testViewModel.insertTest(
         Test(
             testId = 0,
             testName = "Основні терміни та поняття",
@@ -55,7 +55,7 @@ fun InsertInitialTest() {
         )
     )
 
-    testViewModel.insert(
+    testViewModel.insertTest(
         Test(
             testId = 1,
             testName = "Принципи проєктування інтерфейсів",
@@ -111,7 +111,7 @@ fun InsertInitialTest() {
         )
     )
 
-    testViewModel.insert(
+    testViewModel.insertTest(
         Test(
             testId = 2,
             testName = "Методи введення даних",
@@ -211,7 +211,7 @@ fun InsertInitialTest() {
         )
     )
 
-    testViewModel.insert(
+    testViewModel.insertTest(
         Test(
             testId = 3,
             testName = "Ергономічні принципи",

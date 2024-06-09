@@ -13,12 +13,17 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(private val database: MainDb): ViewModel() {
     val tests get() = database.testDao.getAllItems()
+    val testResults get() = database.testResultDao.getAllItems()
 
-    fun insert(test: Test) = viewModelScope.launch {
+    fun insertTest(test: Test) = viewModelScope.launch {
         database.testDao.insert(test)
     }
-    fun delete(test: Test) = viewModelScope.launch {
+    fun deleteTest(test: Test) = viewModelScope.launch {
         database.testDao.delete(test)
+    }
+
+    fun saveResult(testResult: TestResult) = viewModelScope.launch {
+        database.testResultDao.insert(testResult)
     }
 
     companion object {
