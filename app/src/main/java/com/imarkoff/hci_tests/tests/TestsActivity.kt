@@ -1,6 +1,8 @@
 package com.imarkoff.hci_tests.tests
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +31,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.imarkoff.hci_tests.MainViewModel
 import com.imarkoff.hci_tests.R
 import com.imarkoff.hci_tests.data.Test
+
+fun startTest(context: Context, test: Test) {
+    val intent = Intent(context, PassingTestScreenActivity::class.java)
+    intent.putExtra("test", test)
+    context.startActivity(intent)
+}
 
 @Composable
 fun LoadTests(
@@ -52,7 +61,10 @@ fun LoadTests(
 }
 
 @Composable
-fun TestButton(test: Test) {
+fun TestButton(
+    test: Test,
+    context: Context = LocalContext.current
+) {
     Box(
         modifier = Modifier
             .padding(8.dp)
@@ -73,13 +85,15 @@ fun TestButton(test: Test) {
                     text = test.testName,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                )
                 Text(
                     text = test.testDescription
                 )
             }
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    startTest(context, test)
+                },
                 Modifier.padding(top = 16.dp)
             ) {
                 Text(text = stringResource(R.string.start_test))
@@ -113,10 +127,14 @@ fun TestsActivityPreview() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TestButton(test = Test(
+        TestButton(
+            test = Test(
+            testId = 0,
             testName = "Test name",
             testDescription = "Test description here ...",
             questions = emptyList()
-        ))
+        ),
+            context = LocalContext.current
+        )
     }
 }

@@ -1,5 +1,7 @@
 package com.imarkoff.hci_tests.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
@@ -8,16 +10,19 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.Date
 
+@Parcelize
 @Entity
 @TypeConverters(QuestionConverter::class)
 data class Test (
-    @PrimaryKey(autoGenerate = true)
-    val testId: Int = 0,
+    @PrimaryKey(autoGenerate = false)
+    val testId: Int,
     var testName: String,
     var testDescription: String = "",
-    var questions: List<Question>,
-)
+    val questions: List<Question> // Make sure Question is Parcelable or Serializable
+) : Parcelable
 
+
+@Parcelize
 @Entity
 @TypeConverters(AnswerConverter::class)
 data class Question (
@@ -25,15 +30,17 @@ data class Question (
     val questionId: Int = 0,
     var questionText: String,
     var answers: List<Answer>,
-)
+    var answeredId: Int = -1,
+) : Parcelable
 
+@Parcelize
 @Entity
 data class Answer (
     @PrimaryKey(autoGenerate = true)
     val answerId: Int = 0,
     var answerText: String,
     var isCorrect: Boolean,
-)
+) : Parcelable
 
 @Entity
 @TypeConverters(DateConverter::class)

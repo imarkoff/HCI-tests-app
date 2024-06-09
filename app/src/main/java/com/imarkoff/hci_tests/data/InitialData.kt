@@ -12,13 +12,13 @@ fun InsertInitialTest() {
         Question(
             questionText = "Що таке людинно-машинна взаємодія?",
             answers = listOf(
-                Answer(answerText = "Це галузь науки, яка вивчає взаємодію людей з комп'ютерами та іншими машинами.", isCorrect = true),
-                Answer(answerText = "Це тип програмного забезпечення, яке використовується для управління комп'ютером.", isCorrect = false),
-                Answer(answerText = "Це мережа комп'ютерів, яка дозволяє людям обмінюватися інформацією.", isCorrect = false),
-                Answer(answerText = "Це тип комп'ютера, який використовується для виконання складних завдань.", isCorrect = false),
+                Answer(answerId = 1, answerText = "Це галузь науки, яка вивчає взаємодію людей з комп'ютерами та іншими машинами.", isCorrect = true),
+                Answer(answerId = 2, answerText = "Це тип програмного забезпечення, яке використовується для управління комп'ютером.", isCorrect = false),
+                Answer(answerId = 3, answerText = "Це мережа комп'ютерів, яка дозволяє людям обмінюватися інформацією.", isCorrect = false),
+                Answer(answerId = 4, answerText = "Це тип комп'ютера, який використовується для виконання складних завдань.", isCorrect = false),
             )
         ),
-        /*Question(
+        Question(
             questionText = "Які основні цілі взаємодії людини з комп'ютером?",
             answers = listOf(
                 Answer(answerText = "Ефективність", isCorrect = true),
@@ -44,10 +44,11 @@ fun InsertInitialTest() {
                 Answer(answerText = "Експерименти", isCorrect = false),
                 Answer(answerText = "Спостереження", isCorrect = false),
             )
-        )*/
+        )
     )
 
     val test = Test(
+        testId = 0,
         testName = "Тест на знання основних термінів та понять",
         testDescription = "Цей тест допоможе вам перевірити свої знання основних термінів та понять з предмету Інтерфейси та взаємодія людини з комп'ютером",
         questions = questions
